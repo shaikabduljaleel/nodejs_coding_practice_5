@@ -8,7 +8,7 @@ const databasePath = path.join(__dirname, 'moviesData.db')
 let database = null
 const initializeDbAndServer = async () => {
   try {
-    db = await open({
+    database = await open({
       filename: databasePath,
       driver: sqlite3.Database,
     })
@@ -54,23 +54,23 @@ app.get('/movies/:movieId', async (request, response) => {
 
 app.post('/movies/', async (request, response) => {
   const {directorId, movieName, leadActor} = request.body
-  const postMovieQuery = `INSERT INTO MOVIE (director_id,movie_name,lead_actor) VALUES (${directorId},${movieName},${leadActor});`
-  await db.run(postMovieQuery)
+  const postMovieQuery = `INSERT INTO MOVIE (director_id,movie_name,lead_actor) VALUES ('${directorId}','${movieName}','${leadActor}');`
+  await database.run(postMovieQuery)
   response.send('Movie Successfully Added')
 })
 
 app.put('/movies/:movieId', async (request, response) => {
   const {directorId, movieName, leadActor} = request.body
   const {movieId} = request.params
-  const putMovieQuery = `UPDATE MOVIE SET  director_id=${directorId},movie_name=${movieName},lead_actor=${leadActor} WHERE movie_id=${movieId};`
-  await db.run(putMovieQuery)
+  const putMovieQuery = `UPDATE MOVIE SET  director_id='${directorId}',movie_name='${movieName}',lead_actor='${leadActor}' WHERE movie_id=${movieId};`
+  await database.run(putMovieQuery)
   response.send('Movie Details Updated')
 })
 
 app.delete('/movies/:movieId', async (request, response) => {
   const {movieId} = request.params
   const deleteMovieQuery = `DELETE FROM movie WHERE movie_id=${movieId};`
-  await db.run(deleteMovieQuery)
+  await database.run(deleteMovieQuery)
   response.send('Movie Removed')
 })
 
@@ -87,7 +87,7 @@ app.get('/directors/', async (request, response) => {
 app.get('/directors/:directorId/movies/', async (request, response) => {
   const {directorId} = request.params
   const getDirectorMoviesQuery = `SELECT movie_name FROM movie WHERE director_id=${directorId};`
-  const moviesArray = await db.all(getDirectorMoviesQuery)
+  const moviesArray = await database.all(getDirectorMoviesQuery)
   response.send(
     moviesArray.map(eachMovie => ({movieName: eachMovie.movie_name})),
   )
